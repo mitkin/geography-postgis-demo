@@ -1,0 +1,37 @@
+version: '3'
+
+services:
+  postgis:
+    image: kartoza/postgis:13.0
+    ports:
+      - "5433:5432"
+    environment:
+      - POSTGRES_DB=geography_db
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=mysecretpassword
+      - POSTGRES_HOST=postgis
+    command: >
+      sh -c '
+        until psql -h "$POSTGRES_HOST" -U "$POSTGRES_USER" -c "\q"; do
+          >&2 echo "Postgres is unavailable - sleeping"
+          sleep 1
+        done
+
+        # create a geometry table
+        psql -h "$POSTGRES_HOST" -U "$POSTGRES_USER" -d "$POSTGRES_DB" -c "
+          CREATE TABLE geometry_table (
+            id SERIAL PRIMARY KEY,
+            name VARCHAR(255),
+            geom GEOMETRY(POLYGON, 4326)
+          );
+        "
+        #
+        # create a geography table
+        psql -h "$POSTGRES_HOST" -U "$POSTGRES_USER" -d "$POSTGRES_DB" -c "
+          CREATE TABLE geography_table (
+            id SERIAL PRIMARY KEY,
+            name VARCHAR(255),
+            geog GEOGRAPHY(POLYGON, 4326)
+          );
+        "
+      '
