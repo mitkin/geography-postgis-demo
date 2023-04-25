@@ -5,6 +5,7 @@ services:
     image: kartoza/postgis:13.0
     ports:
       - "5433:5432"
+    user: "${UID}:${GID}"
     environment:
       - POSTGRES_DB=geography_db
       - POSTGRES_USER=postgres
